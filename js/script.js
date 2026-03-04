@@ -43,10 +43,32 @@ function init(){
     .then(data => {
             console.log(data)
             allData = data
-
-            //new listern
+            //new listeners
+            setupMap()
         })
+
     .catch(error => console.error('Error loading data:', error));
+}
+
+
+function setupMap(){
+    d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json").then(usData => {
+        const statesGeo = topojson.feature(usData, usData.objects.states);
+
+        const projection = d3.geoAlbersUsa()
+            .fitSize([width, height], statesGeo);
+
+        const path = d3.geoPath().projection(projection);
+
+        svg.selectAll("path")
+            .data(statesGeo.features)
+            .enter()
+            .append("path")
+            .attr("d", path)
+            .attr("fill", "#eee")
+            .attr("stroke", "#333")
+            .attr("stroke-width", 0.5);
+    });
 }
 
 window.addEventListener('load', init);
