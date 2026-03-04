@@ -6,6 +6,10 @@ const height = 600 - margin.top - margin.bottom;
 
 const t = 1000; // 1000ms = 1 second
 
+// The margin code above
+
+let allData = []
+
 
 // Create SVG
 const svg = d3.select('#vis')
@@ -17,33 +21,32 @@ const svg = d3.select('#vis')
 
 function init(){
     //replace with dataset
-    d3.csv("./data/gapminder_subset.csv", 
+    console.log("Init is running");
+    d3.csv("./data/weather.csv", 
          // this is the callback function, applied to each item in the array
         d=>({  
         // Besides converting the types, we also simpilify the variable names here. 
-        country: d.country,
-        continent: d.continent,
-        year: +d.year, // using + to convert to numbers; same below
-        lifeExp: +d.life_expectancy, 
-        income: +d.income_per_person, 
-        gdp: +d.gdp_per_capita, 
-        childDeaths: +d.number_of_child_deaths,
-        population: +d.population
+        state: d.state,
+        date: new Date(
+        +d.date.slice(0, 4),      // year
+        +d.date.slice(4, 6) - 1,  // month (subtract 1!)
+        +d.date.slice(6, 8)        // day
+    ),
+        min_temp: +d.TMIN, 
+        max_temp: +d.TMAX, 
+        avg_temp: +d.TAVG, 
+        avg_wind: +d.AWND,
+        fast5_wind_speed: +d.WSF5,
+        fast5_wind_direction: +d.WDF5
         }))
 
     .then(data => {
             console.log(data)
             allData = data
 
-            setupSelector()
-             // Initial rendering steps:
-            // P.S. You could move these into setupSelector(), 
-            // but calling them separately makes the flow clearer.
-            updateAxes()
-            updateVis()
-            addLegend()
-
-            // placeholder for adding listerners
+            //new listern
         })
     .catch(error => console.error('Error loading data:', error));
 }
+
+window.addEventListener('load', init);
