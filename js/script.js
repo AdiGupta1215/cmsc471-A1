@@ -45,6 +45,7 @@ function init(){
             allData = data
             //new listeners
             setupMap()
+            updateVis()
         })
 
     .catch(error => console.error('Error loading data:', error));
@@ -60,15 +61,45 @@ function setupMap(){
 
         const path = d3.geoPath().projection(projection);
 
-        svg.selectAll("path")
+        statePaths = svg.selectAll("path")
             .data(statesGeo.features)
             .enter()
             .append("path")
             .attr("d", path)
             .attr("fill", "#eee")
             .attr("stroke", "#333")
-            .attr("stroke-width", 0.5);
+            .attr("stroke-width", 0.5)
+            .on('mouseover', function (event, d) {
+            console.log(d) // See the data point in the console for debugging
+             d3.select('#tooltip')
+                // if you change opacity to hide it, you should also change opacity here
+                .style("display", 'block') // Make the tooltip visible
+                .html( // Change the html content of the <div> directly
+                `<strong>${d.properties.name}</strong>`
+                )
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY + 10) + "px");
+             d3.select(this) // Refers to the hovered circle
+                .style('stroke', 'black')
+                .style('stroke-width', "1.5px")
+            })
+            .on("mouseout", function (event, d) {
+                d3.select('#tooltip')
+                //placeholder: hide it
+                .style('display', 'none')
+                d3.select(this)
+                .attr("stroke", "#333")
+                .style('stroke-width', 0.5)
+            })
+            .transition(t);
+
+        console.log(statePaths.data)
     });
+
+}
+
+function updateVis(){
+
 }
 
 window.addEventListener('load', init);
