@@ -105,8 +105,8 @@ function init(){
             //new listeners
             colorScale = d3.scaleSequential(d3.interpolateRdYlBu)
                 .domain([
+                d3.max(allData, d => d.avg_temp),
                 d3.min(allData, d => d.avg_temp),
-                d3.max(allData, d => d.avg_temp)
                 ]);
 
             setupSelector()
@@ -169,7 +169,8 @@ function setupMap(){
                 // if you change opacity to hide it, you should also change opacity here
                 .style("display", 'block') // Make the tooltip visible
                 .html( // Change the html content of the <div> directly
-                `<strong>${d.properties.name}</strong>`
+                `<strong>${d.properties.name}</strong> <br/>
+                avgTemp: ${d.avgTemp.toFixed(1)} ºF`
                 )
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY + 10) + "px");
@@ -197,13 +198,14 @@ function updateVis(){
         d.date.getMonth() === targetDate.getMonth() &&
         d.date.getDate() === targetDate.getDate()
     );
-    //console.log(filteredData.filter(d=>d.state == "New York"))
-        // Group by state and compute average if multiple entries exist
+ // Group by state and compute average if multiple entries exist
+
     const dataByState = d3.rollup(
         filteredData,
         v => d3.mean(v, d => d.avg_temp), // average temperature
         d => d.state
     );
+    console.log(filteredData.filter(d=>d.state== "New York"))
 
     svg.selectAll("path")
         .each(function(d) {
@@ -211,6 +213,7 @@ function updateVis(){
             if (avgTemp !== undefined) {
                 // update color if data exists
                 d.color = colorScale(avgTemp);
+                d.avgTemp = avgTemp
                 d3.select(this)
                   .transition(t)
                   .attr("fill", d.color);
