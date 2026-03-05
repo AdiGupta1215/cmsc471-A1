@@ -105,8 +105,8 @@ function init(){
             //new listeners
             colorScale = d3.scaleSequential(d3.interpolateRdYlBu)
                 .domain([
-                d3.max(allData, d => d.avg_temp),
-                d3.min(allData, d => d.avg_temp),
+                110,
+                0
                 ]);
 
             setupSelector()
