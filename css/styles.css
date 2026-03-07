@@ -47,3 +47,32 @@
     pointer-events: none; /* Prevent tooltip from interfering with mouse events */
     font-size: 12px;
 }
+.annotation-box {
+    max-width: 800px;
+    margin: 12px auto 24px auto;
+    padding: 10px 14px;
+    background: #f7f7f7;
+    border-left: 4px solid #666;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #222;
+}
+
+.controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#slider svg {
+    display: block;
+}

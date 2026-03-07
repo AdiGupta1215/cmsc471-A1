@@ -3,33 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lab 1: Intro to D3</title>
+    <title>A1: Interactive Visualization</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <div id="tooltip" style="display:none"></div> 
     <div class="container"> <!-- Centers content and sets max width -->
     <h1>A1: Interactive Visualization</h1>
-        <div class="controls">
-            <div id="slider"></div>
-        </div>
-        <div id="vis"></div> <!--  Will hold our visualization (SVG) -->
-        <div id="map"></div>
 
+    <p>
+    This visualization allows users to explore weather patterns across the United States and see how they change over time. 
+    Users can select a weather metric using the dropdown menu, including average, minimum, and maximum temperature, as well 
+    as average wind speed and fastest 5-second wind speed. The date slider allows users to move through time and view how 
+    these patterns change from day to day.
+    </p>
+    <br>
+    <p>
+    The <b>choropleth map</b> displays the selected metric for each state on the chosen date. Colors represent the magnitude of the 
+    selected variable, with darker or warmer colors indicating higher values depending on the metric. The color legend above 
+    the map helps interpret these values.
+
+    Hovering over a state shows the exact value for that state, and clicking on a state updates the line chart below the map. 
+    The <b>line chart</b> below the map displays how the selected metric changes over time for that specific state, allowing users to compare the 
+    map’s snapshot for a given day with the longer-term trend in that location.
+
+    Together, these interactions allow users to explore both geographic patterns across the country and temporal trends within 
+    individual states.
+    </p>
+        <div class="controls">
+            <div class="control-group">
+                <label for="metricSelector">Metric:</label>
+                <select id="metricSelector"></select>
+            </div>
+
+            <div class="control-group">
+                <label for="slider">Date:</label>
+                <div id="slider"></div>
+            </div>
+        </div>
+        <div id="vis"></div>
+            <div id="annotationBox" class="annotation-box"></div>
+
+            
+          
+            <div id="lineVis"></div>
+
+            
         <div>
             <h1>Write-Up</h1>
             <h2>Introduction</h2>
-            <p>We chose to use the weather dataset. <i>TO DO</i></br>
-            <h2>Design decisions</h2>
-                    We chose to use a colorpleth map visualization for this dataset with a dynamic date slider because we felt it had the best clarity and informational value as a visualization.
-                We considered to use a graph approach with changing variables like in Lab 4 but felt that it did not capture the geographic information and failed to convey the distances between states.
-                Furthermore, the map is a better way to overcome the gulf of evaluation as it is easier to retrieve data from a certain state by clicking it on a map as opposed to finding its dot in a graph.
-                <br><br>
-                    One interaction we added was a dynamic date slider that changes the data showed in real time. Along with transitions, this helps the user evaluate patterns through time efficiently and with clarity. 
-                Another choice we considered was a calendar-like selection of date and time, for much the same reason as the choice to use a map- it is a more common representation of date and time for the user. 
-                However, we decided that overall, the ease of rapidly changing the dates was much easier using the slider and harder with the calendar, so with the overall goal of representing the morphology of the data through time at the cost of less convenient direct lookup for an exact date, we decided the slider was a better option
+             <p>
+                We used the Daily Weather in the U.S. dataset, which contains weather measurements collected from stations 
+                across the United States in 2017. The dataset includes variables such as minimum, maximum, and average 
+                temperature, as well as several wind speed measurements. Because the raw dataset contains multiple station 
+                readings per state for each day, we aggregated the data by state and date to compute a state-level average 
+                for the selected metric. This allowed us to visualize weather patterns across the country in a clearer and 
+                more interpretable way. In our visualization, users can explore several variables including average 
+                temperature, minimum temperature, maximum temperature, average wind speed, and the fastest five-second 
+                wind speed. This subset of variables allows users to compare both temperature and wind conditions across 
+                different states and observe how these patterns change over time.
             </p>
+            <h2>Design decisions</h2>
+            <p>
+                We chose to use a choropleth map visualization combined with a dynamic date slider because we felt it provided 
+                the best clarity and informational value for this dataset. Since weather data is strongly tied to geography, a 
+                map makes it easy to see regional patterns and compare states visually. For example, users can quickly identify 
+                how temperatures differ between northern and southern states or observe areas with higher wind speeds.
+            </p>
+            <br>
+            <p>
+                We also considered using a graph-based approach with adjustable variables, similar to what was done in Lab 4. 
+                However, we felt that this approach did not capture the geographic nature of the dataset very well. A scatterplot 
+                or graph would make it harder to understand spatial relationships between states and would not clearly show how 
+                weather patterns vary across different regions of the country.
+            </p>
+            <br>
+            <p>
+                Using a map also helps reduce the gulf of evaluation. Users can directly click on the state they are interested 
+                in, rather than trying to locate a specific data point in a crowded chart. This makes the interaction more 
+                intuitive and lowers the effort required to retrieve information about a particular state.
+            </p>
+            <br>
+            <p>
+                One key interaction we implemented is a dynamic date slider that allows users to change the date and update the 
+                map in real time. This makes it easy to explore how weather conditions evolve over time. Smooth transitions help 
+                users track changes between dates and identify trends or shifts in the data as they move through the timeline.
+            </p>
+            <br>
+            <p>
+                Another interaction we created was a a panning and zooming effect for the line chart. 
+            </p>
+            <p>
+                We also considered using a calendar-style interface for selecting dates. While calendars are a familiar way for 
+                users to choose a specific day, they are less effective for quickly exploring changes across many dates. The 
+                slider allows users to rapidly move through time and observe how weather patterns change, which better supports 
+                exploratory analysis. Because of this, we decided that the slider provided a better balance between usability 
+                and interactive exploration.
+            </p>
+            <br>
+            <p>
+                In addition to the map, users can click on a state to view a line chart showing how the selected weather metric 
+                changes over time for that state. This provides a more detailed view of temporal patterns and allows users to 
+                move between spatial and temporal perspectives in the dataset.
+            </p>
+
             <h2>Development Process</h2>
+
+            <p>
+                Our development process involved building the visualization step by step, starting with loading and cleaning 
+                the dataset and then creating the base map of the United States using geographic data. After the map was working, 
+                we added the color encoding for the weather values and implemented the date slider so that the visualization 
+                could update dynamically.
+            </p>
         </div>
     </div>
     

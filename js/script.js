@@ -1,7 +1,7 @@
 const margin = { top: 80, right: 60, bottom: 60, left: 100 };
 const width = 800 - margin.left - margin.right;
 const height = 600 - margin.top - margin.bottom;
-// The margin code above
+
 
 const t = 50; // 1000ms = 1 second
 
@@ -10,6 +10,11 @@ let targetDate;
 let statePaths; 
 let colorScale;
 let allData = []
+let selectedState = null;
+let selectedMetric = "avg_temp";
+let lineSvg;
+let lineXScale, lineYScale, linePath, lineXAxis, lineYAxis, lineDateMarker;
+
 const stateNameMap = {
   "AL": "Alabama",
   "AK": "Alaska",
@@ -63,6 +68,14 @@ const stateNameMap = {
   "WY": "Wyoming"
 };
 
+
+const metricLabels = {
+  avg_temp: "Average Temperature (°F)",
+  min_temp: "Minimum Temperature (°F)",
+  max_temp: "Maximum Temperature (°F)",
+  avg_wind: "Average Wind Speed",
+  fast5_wind_speed: "Fastest 5-sec Wind Speed"
+};
 // Create SVG
 const svg = d3.select('#vis')
     .append('svg')
@@ -102,17 +115,34 @@ function init(){
             console.log(data)
             allData = data.filter(d => d.avg_temp !== undefined && d.avg_temp > -60);
 
-            colorScale = d3.scaleSequential(d3.interpolateRdYlBu)
-                .domain([
-                110,
-                0
-                ]);
-
-            setupSelector()
-            setupMap()
+            setupMetricSelector();
+            setupSelector();
+            setupLineChart();
+            setupMap();
         })
 
     .catch(error => console.error('Error loading data:', error));
+}
+
+
+
+
+function setupMetricSelector() {
+    d3.select('#metricSelector')
+        .selectAll('option')
+        .data(Object.keys(metricLabels))
+        .enter()
+        .append('option')
+        .attr('value', d => d)
+        .text(d => metricLabels[d]);
+
+    d3.select('#metricSelector')
+        .property('value', selectedMetric)
+        .on('change', function() {
+            selectedMetric = d3.select(this).property('value');
+            updateVis();
+            updateLineChartVis();
+        });
 }
 
 function setupSelector(){
@@ -132,8 +162,9 @@ function setupSelector(){
     .displayFormat(d3.timeFormat("%Y-%m-%d"))
     .displayValue(true)
     .on('onchange', val => {
-      targetDate = val;                      // val is a Date object
-      updateVis();
+      targetDate = val;
+      updateVis();                      // val is a Date object
+      updateLineChartVis();
     });
 
   d3.select('#slider')
@@ -168,8 +199,8 @@ function setupMap(){
                 // if you change opacity to hide it, you should also change opacity here
                 .style("display", 'block') // Make the tooltip visible
                 .html( // Change the html content of the <div> directly
-                `<strong>${d.properties.name}</strong> <br/>
-                avgTemp: ${d.avgTemp.toFixed(1)} ºF`
+                `<strong>${d.properties.name}</strong><br/>
+                ${metricLabels[selectedMetric]}: ${d.metricValue.toFixed(1)}`
                 )
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY + 10) + "px");
@@ -185,12 +216,27 @@ function setupMap(){
                 .attr("stroke", "#333")
                 .style('stroke-width', 0.5)
             })
+            // linking state selection
+            .on("click", function(event, d) {
+            selectedState = d.properties.name;
+            updateStateHighlight();
+            updateLineChartVis();
+        });
          
 
         updateVis();
     });
 
 }
+
+
+function updateStateHighlight() {
+    statePaths
+        .attr("stroke", d => d.properties.name === selectedState ? "black" : "#333")
+        .attr("stroke-width", d => d.properties.name === selectedState ? 2 : 0.5);
+}
+
+
 function updateVis(){
     const filteredData = allData.filter(d => 
         d.date.getFullYear() === targetDate.getFullYear() &&
@@ -201,31 +247,275 @@ function updateVis(){
 
     const dataByState = d3.rollup(
         filteredData,
-        v => d3.mean(v, d => d.avg_temp), // average temperature
+        v => d3.mean(v, d => d[selectedMetric]), // average temperature
         d => d.state
     );
     console.log(filteredData.filter(d=>d.state== "New York"))
 
-    svg.selectAll("path")
+
+     // only use values that are actually on the map right now
+    const valuesOnMap = Array.from(dataByState.values()).filter(v => v !== undefined && !isNaN(v));
+    const minVal = d3.min(valuesOnMap);
+    const maxVal = d3.max(valuesOnMap);
+
+    // build the color scale from the displayed values
+    if (
+        selectedMetric === "avg_temp" ||
+        selectedMetric === "min_temp" ||
+        selectedMetric === "max_temp"
+    ) {
+        colorScale = d3.scaleSequential(d3.interpolateRdYlBu)
+            .domain([maxVal, minVal]); // reversed so hot = red, cold = blue
+    } else {
+        colorScale = d3.scaleSequential(d3.interpolateBlues)
+            .domain([minVal, maxVal]);
+    }
+
+    statePaths
         .each(function(d) {
-            const avgTemp = dataByState.get(d.properties.name); // get the avg temp for this state
-            if (avgTemp !== undefined) {
-                // update color if data exists
-                d.color = colorScale(avgTemp);
-                d.avgTemp = avgTemp
+            const metricValue = dataByState.get(d.properties.name);
+
+            if (metricValue !== undefined) {
+                d.metricValue = metricValue;
                 d3.select(this)
-                  .transition(t)
-                  .attr("fill", d.color);
-            } else if (d.color) {
-                // keep previous color if no data
+                    .transition()
+                    .duration(t)
+                    .attr("fill", colorScale(metricValue));
+            } else {
+                d.metricValue = undefined;
                 d3.select(this)
-                  .transition(t)
-                  .attr("fill", d.color);
+                    .transition()
+                    .duration(t)
+                    .attr("fill", "#eee");
             }
-            // else leave as default (initial fill)
         });
+
+        updateStateHighlight();
+        setupColorLegend();
+        updateAnnotations();
 }
 
+function setupLineChart() {
+    const lineMargin = { top: 40, right: 30, bottom: 50, left: 60 };
+    const lineWidth = 800 - lineMargin.left - lineMargin.right;
+    const lineHeight = 250 - lineMargin.top - lineMargin.bottom;
 
+    const lineSvgContainer = d3.select('#lineVis')
+        .append('svg')
+        .attr('width', lineWidth + lineMargin.left + lineMargin.right)
+        .attr('height', lineHeight + lineMargin.top + lineMargin.bottom);
 
+    lineSvg = lineSvgContainer
+        .append('g')
+        .attr('transform', `translate(${lineMargin.left},${lineMargin.top})`);
+
+    lineSvg.append("defs")
+        .append("clipPath")
+        .attr("id", "line-clip")
+        .append("rect")
+        .attr("width", lineWidth)
+        .attr("height", lineHeight);
+    lineSvg.append("text")
+        .attr("class", "lineTitle")
+        .attr("x", lineWidth / 2)
+        .attr("y", -10)
+        .attr("text-anchor", "middle")
+        .text("Click a state to see its trend over time");
+
+    lineXAxis = lineSvg.append("g")
+        .attr("class", "xAxis")
+        .attr("transform", `translate(0,${lineHeight})`);
+
+    lineYAxis = lineSvg.append("g")
+        .attr("class", "yAxis");
+
+    // clipped group so anything left of the y-axis gets hidden
+    const clippedGroup = lineSvg.append("g")
+        .attr("clip-path", "url(#line-clip)");
+
+    linePath = clippedGroup.append("path")
+        .attr("class", "linePath")
+        .attr("fill", "none")
+        .attr("stroke", "steelblue")
+        .attr("stroke-width", 2);
+
+    lineDateMarker = clippedGroup.append("line")
+        .attr("class", "dateMarker")
+        .attr("stroke", "crimson")
+        .attr("stroke-width", 1.5)
+        .attr("stroke-dasharray", "4 4")
+        .style("opacity", 0);
+
+    // invisible zoom layer
+    lineSvg.append("rect")
+        .attr("class", "zoomRect")
+        .attr("width", lineWidth)
+        .attr("height", lineHeight)
+        .style("fill", "none")
+        .style("pointer-events", "all");
+}
+
+function updateLineChartVis() {
+    if (!selectedState || !lineSvg) return;
+
+    const lineMargin = { top: 40, right: 30, bottom: 50, left: 60 };
+    const lineWidth = 800 - lineMargin.left - lineMargin.right;
+    const lineHeight = 250 - lineMargin.top - lineMargin.bottom;
+
+    const stateData = allData.filter(
+        d => d.state === selectedState
+    );
+
+    const lineData = Array.from(
+        d3.rollup(
+            stateData,
+            v => d3.mean(v, d => d[selectedMetric]),
+            d => +d.date
+        ),
+        ([date, value]) => ({ date: new Date(+date), value: value })
+    ).sort((a, b) => a.date - b.date);
+
+    lineXScale = d3.scaleTime()
+        .domain(d3.extent(lineData, d => d.date))
+        .range([0, lineWidth]);
+
+    lineYScale = d3.scaleLinear()
+        .domain(d3.extent(lineData, d => d.value))
+        .nice()
+        .range([lineHeight, 0]);
+
+    const line = d3.line()
+        .x(d => lineXScale(d.date))
+        .y(d => lineYScale(d.value));
+
+    lineXAxis.call(d3.axisBottom(lineXScale).ticks(6));
+    lineYAxis.call(d3.axisLeft(lineYScale));
+
+    linePath
+        .datum(lineData)
+        .attr("d", line);
+
+    lineSvg.select(".lineTitle")
+        .text(`${selectedState} ${metricLabels[selectedMetric]} Over Time`);
+
+    const currentPoint = lineData.find(d =>
+        d.date.getFullYear() === targetDate.getFullYear() &&
+        d.date.getMonth() === targetDate.getMonth() &&
+        d.date.getDate() === targetDate.getDate()
+    );
+
+    if (currentPoint) {
+        lineDateMarker
+            .style("opacity", 1)
+            .attr("x1", lineXScale(currentPoint.date))
+            .attr("x2", lineXScale(currentPoint.date))
+            .attr("y1", 0)
+            .attr("y2", lineHeight);
+    } else {
+        lineDateMarker.style("opacity", 0);
+    }
+
+    const zoomed = (event) => {
+        const newX = event.transform.rescaleX(lineXScale);
+
+        const newLine = d3.line()
+            .x(d => newX(d.date))
+            .y(d => lineYScale(d.value));
+
+        lineXAxis.call(d3.axisBottom(newX).ticks(6));
+        linePath.attr("d", newLine(lineData));
+
+        if (currentPoint) {
+            lineDateMarker
+                .style("opacity", 1)
+                .attr("x1", newX(currentPoint.date))
+                .attr("x2", newX(currentPoint.date))
+                .attr("y1", 0)
+                .attr("y2", lineHeight);
+        }
+    };
+
+    const zoom = d3.zoom()
+        .scaleExtent([1, 10])
+        .translateExtent([[0, 0], [lineWidth, lineHeight]])
+        .extent([[0, 0], [lineWidth, lineHeight]])
+        .on("zoom", zoomed);
+
+    lineSvg.select(".zoomRect")
+        .call(zoom)
+        .call(zoom.transform, d3.zoomIdentity);
+}
+function setupColorLegend() {
+    svg.selectAll(".colorLegend").remove();
+    svg.select("defs").remove();
+
+    const legendWidth = 200;
+    const legendHeight = 10;
+
+    const legendSvg = svg.append("g")
+        .attr("class", "colorLegend")
+        .attr("transform", `translate(${width / 2 - legendWidth / 2}, -50)`);
+
+    const defs = svg.append("defs");
+
+    const gradient = defs.append("linearGradient")
+        .attr("id", "legend-gradient")
+        .attr("x1", "0%")
+        .attr("x2", "100%")
+        .attr("y1", "0%")
+        .attr("y2", "0%");
+
+    const domain = colorScale.domain();
+    const start = domain[0];
+    const end = domain[1];
+
+    d3.range(0, 1.01, 0.1).forEach(t => {
+        const value = start + t * (end - start);
+        gradient.append("stop")
+            .attr("offset", `${t * 100}%`)
+            .attr("stop-color", colorScale(value));
+    });
+
+    legendSvg.append("rect")
+        .attr("width", legendWidth)
+        .attr("height", legendHeight)
+        .style("fill", "url(#legend-gradient)");
+
+    const legendScale = d3.scaleLinear()
+        .domain(domain)
+        .range([0, legendWidth]);
+
+    legendSvg.append("g")
+        .attr("class", "legendAxis")
+        .attr("transform", `translate(0, ${legendHeight})`)
+        .call(d3.axisBottom(legendScale).ticks(5));
+
+    legendSvg.append("text")
+        .attr("class", "legendTitle")
+        .attr("x", legendWidth / 2)
+        .attr("y", -6)
+        .attr("text-anchor", "middle")
+        .text(metricLabels[selectedMetric]);
+}
+function updateAnnotations() {
+    let text = "";
+
+    if (selectedMetric === "avg_temp") {
+        text = "Warmer temperatures are concentrated in the Southeast and tropical states like Florida and Hawaii, while colder temperatures appear in northern states such as the Dakotas, Maine, and Alaska.";
+    } 
+    else if (selectedMetric === "max_temp") {
+        text = "Maximum temperatures are highest in the southern states, while northern states remain noticeably cooler.";
+    } 
+    else if (selectedMetric === "min_temp") {
+        text = "Minimum temperatures show a strong north-south contrast, with colder overnight conditions in northern states.";
+    } 
+    else if (selectedMetric === "fast5_wind_speed") {
+        text = "The highest short-duration wind speeds are concentrated in a few interior western and central states, showing a more localized pattern than temperature.";
+    } 
+    else if (selectedMetric === "avg_wind") {
+        text = "Average wind speed is highest in parts of the Southwest and interior West, while much of the rest of the country stays in a lower range.";
+    }
+
+    d3.select("#annotationBox").text(text);
+}
 window.addEventListener('load', init);
