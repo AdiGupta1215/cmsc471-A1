@@ -102,7 +102,6 @@ function init(){
             console.log(data)
             allData = data.filter(d => d.avg_temp !== undefined && d.avg_temp > -60);
 
-            //new listeners
             colorScale = d3.scaleSequential(d3.interpolateRdYlBu)
                 .domain([
                 110,
