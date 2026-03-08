@@ -3,19 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lab 1: Intro to D3</title>
+    <title>A1: Interactive Visualization</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <div id="tooltip" style="display:none"></div> 
     <div class="container"> <!-- Centers content and sets max width -->
     <h1>A1: Interactive Visualization</h1>
-        <div class="controls">
-            <div id="slider"></div>
-        </div>
-        <div id="vis"></div> <!--  Will hold our visualization (SVG) -->
-        <div id="map"></div>
 
+    <p>
+            This visualization is designed to help users explore weather patterns across the United States and see how they
+            change over time. Users can choose which weather metric they want to view using the metric dropdown, including
+            average temperature, minimum temperature, maximum temperature, average wind speed, and fastest 5-second wind
+            speed. The date slider allows users to move through the year and compare how these patterns change from day to day.
+        </p>
+
+        <p>
+            The <b>choropleth map</b> shows the selected weather metric for each state on the chosen date. The color of each
+            state represents the magnitude of that metric, and the legend above the map helps users interpret the scale.
+            Hovering over a state reveals the exact value for that state, which provides details on demand without cluttering
+            the map.
+        </p>
+
+        <p>
+            The visualization also includes a linked <b>line chart</b> below the map. Clicking on a state updates the line
+            chart to show how the selected metric changes over time for that specific state. This makes it possible to connect
+            a single-day geographic snapshot on the map with a longer-term trend for an individual location. Users can also
+            zoom and pan within the line chart to focus on smaller time periods in more detail.
+        </p>
+
+        <p>
+            Together, these interactions allow users to explore both <b>spatial patterns</b> across the country and
+            <b>temporal trends</b> within individual states. The play button provides another way to move through time by
+            automatically animating the slider, making it easier to observe how weather patterns shift over the course of
+            the year.
+        </p>
+        <br>
+        <div class="controls">
+            <div class="control-group">
+                <label for="metricSelector">Metric:</label>
+                <select id="metricSelector"></select>
+            </div>
+            
+            <div class="control-group">
+                <label for="slider">Date:</label>
+                <div id="slider"></div>
+            </div>
+            <button id="playButton">Play</button>
+        </div>
+        <div id="vis"></div>
+            <div id="annotationBox" class="annotation-box"></div>
+
+            
+          
+            <div id="lineVis"></div>
+
+            
         <div>
             <h1>Write-Up</h1>
             <h2>Introduction</h2>
@@ -36,8 +79,69 @@
                 We also included a tooltip upon hovering over a state that provides more information on the data for that state. 
                 
             </p>
-            <h2>Development Process</h2>
+            <br>
+            <p>
+                In our visualization, users can explore several weather variables, including average temperature, minimum
+                temperature, maximum temperature, average wind speed, and fastest 5-second wind speed. This subset of
+                variables allows users to compare both temperature and wind conditions across states and observe how these
+                patterns change throughout the year.
+            </p>
+            <h2>Design decisions</h2>
+            <p>
+                We chose a choropleth map as the main visualization because weather data is inherently geographic. A map
+                makes it easier to identify regional patterns and compare nearby states. For example, users can quickly see
+                north-south temperature differences or identify regions with relatively stronger wind conditions. We felt
+                this approach provided more clarity and informational value than a more abstract chart.
+            </p>
 
+            <p>
+                We also considered using a graph-based visualization with adjustable variables, similar to the approach used
+                in Lab 4. However, we felt that a scatterplot or general graph would not communicate the geographic nature
+                of the weather data as effectively. It would also make it harder for users to understand regional patterns
+                or locate a specific state quickly.
+            </p>
+
+            <p>
+                Using a map also helps reduce the gulf of evaluation. Instead of searching for a point in a dense graph,
+                users can directly interact with familiar geographic shapes. Clicking on a state is a more intuitive way to
+                retrieve detailed information about that location.
+            </p>
+
+            <p>
+                One key interaction we implemented is the <b>dynamic date slider</b>, which updates the map in real time as
+                the user moves through the year. This supports temporal exploration and makes it easier to notice seasonal
+                shifts or changes in regional patterns. We also added smooth transitions so users can better follow how the
+                values change between dates.
+            </p>
+
+            <p>
+                Another important interaction is the <b>linked line chart</b>. When a user clicks on a state, the line chart
+                updates to display that state’s trend over time for the selected metric. This linking allows users to move
+                between an overview of the whole country and a more detailed view of one location. It also makes the
+                relationship between geography and time much clearer.
+            </p>
+
+            <p>
+                To support more detailed exploration, we added <b>zooming and panning</b> in the line chart. This makes it
+                easier to focus on a smaller part of the year without losing the larger context of the full trend. We also
+                added <b>tooltips</b> on the map so users can view exact values on demand, as well as a <b>dynamic
+                annotation box</b> that highlights key patterns visible in the current view.
+            </p>
+
+            <p>
+                We also considered using a calendar-style interface for date selection. While a calendar is useful for
+                selecting one exact day, it is less effective for rapidly exploring many days in sequence. We felt that the
+                slider was the better choice because it supports quick comparison across time and makes it easier to scan for
+                changes in the data.
+            </p>
+
+            <p>
+                Finally, we kept a consistent color scale for each metric so that the same colors represent approximately the
+                same values across different dates. This makes the legend more stable and helps users compare time periods
+                more directly.
+            </p>
+
+            <h2>Development Process</h2>
 
         </div>
     </div>
