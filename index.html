@@ -21,15 +21,24 @@
             <h2>Introduction</h2>
             <p>We chose to use the weather dataset. <i>TO DO</i></br>
             <h2>Design decisions</h2>
-                    We chose to use a colorpleth map visualization for this dataset with a dynamic date slider because we felt it had the best clarity and informational value as a visualization.
+                We chose to use a colorpleth map visualization for this dataset with a dynamic date slider because we felt it had the best clarity and informational value as a visualization.
                 We considered to use a graph approach with changing variables like in Lab 4 but felt that it did not capture the geographic information and failed to convey the distances between states.
                 Furthermore, the map is a better way to overcome the gulf of evaluation as it is easier to retrieve data from a certain state by clicking it on a map as opposed to finding its dot in a graph.
+                To make the map, we used the topoJSON library 
+                <a href = "https://github.com/topojson/us-atlas"> us-atlas</a>
+                with inspiration from 
+                <a href="https://billmill.org/making_a_us_map.html">Bill Mill</a>.
                 <br><br>
-                    One interaction we added was a dynamic date slider that changes the data showed in real time. Along with transitions, this helps the user evaluate patterns through time efficiently and with clarity. 
+                One interaction we added was a dynamic date slider that changes the data showed in real time. Along with transitions, this helps the user evaluate patterns through time efficiently and with clarity. 
                 Another choice we considered was a calendar-like selection of date and time, for much the same reason as the choice to use a map- it is a more common representation of date and time for the user. 
-                However, we decided that overall, the ease of rapidly changing the dates was much easier using the slider and harder with the calendar, so with the overall goal of representing the morphology of the data through time at the cost of less convenient direct lookup for an exact date, we decided the slider was a better option
+                However, we decided that overall, the ease of rapidly changing the dates was much easier using the slider and harder with the calendar, so with the overall goal of representing the morphology of the data through time at the cost of less convenient direct lookup for an exact date, we decided the slider was a better option.
+                <br><br>
+                We also included a tooltip upon hovering over a state that provides more information on the data for that state. 
+                
             </p>
             <h2>Development Process</h2>
+
+
         </div>
     </div>
     
