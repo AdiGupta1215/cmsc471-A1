@@ -271,15 +271,15 @@ function updateVis(){
      // only use values that are actually on the map right now
     if (selectedMetric === "avg_temp") {
     colorScale = d3.scaleSequential(d3.interpolateRdYlBu)
-        .domain([100, 0]);
+        .domain([100, -20]);
 }
 else if (selectedMetric === "min_temp") {
     colorScale = d3.scaleSequential(d3.interpolateRdYlBu)
-        .domain([80, -20]);
+        .domain([100, -20]);
 }
 else if (selectedMetric === "max_temp") {
     colorScale = d3.scaleSequential(d3.interpolateRdYlBu)
-        .domain([110, 20]);
+        .domain([100, -20]);
 }
 else if (selectedMetric === "avg_wind") {
     colorScale = d3.scaleSequential(d3.interpolateBlues)
