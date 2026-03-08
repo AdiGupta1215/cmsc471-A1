@@ -9,6 +9,7 @@ const t = 50; // 1000ms = 1 second
 let targetDate;
 let statePaths; 
 let colorScale;
+let slider;
 let allData = []
 let selectedState = null;
 let selectedMetric = "avg_temp";
@@ -84,6 +85,10 @@ const svg = d3.select('#vis')
     .append('g')
     .attr('transform', `translate(${margin.left},${margin.top})`);
 
+
+let isPlaying = false;
+let playInterval = null;
+let uniqueDates = [];
 function parseNum(value) {
     return value === "" ? undefined : +value;
 }    
@@ -113,10 +118,11 @@ function init(){
 
     .then(data => {
             console.log(data)
-            allData = data.filter(d => d.avg_temp !== undefined && d.avg_temp > -60);
+            allData = data.filter(d => d.state !== undefined && d.date instanceof Date && !isNaN(d.date));
 
             setupMetricSelector();
             setupSelector();
+            setupPlayButton();
             setupLineChart();
             setupMap();
         })
@@ -151,29 +157,38 @@ function setupSelector(){
   // May need to call updateAxes() and updateVis() here when needed!
     //const minDate = d3.min(allData, d=>d.date);
     //const maxDate = d3.max(allData, d=>d.date);
-    const uniqueDates = Array.from(new Set(allData.map(d => +d.date)))
-                         .map(d => new Date(d));
-    targetDate = uniqueDates[0]
-    var slider = d3.sliderBottom()
-    .min(uniqueDates[0])
-    .max(uniqueDates[uniqueDates.length-1])
-    .step(null)  
-    .width(width-60)
-    .displayFormat(d3.timeFormat("%Y-%m-%d"))
-    .displayValue(true)
-    .on('onchange', val => {
-      targetDate = val;
-      updateVis();                      // val is a Date object
-      updateLineChartVis();
-    });
+    uniqueDates = Array.from(new Set(allData.map(d => d.date.getTime())))
+        .sort((a, b) => a - b)
+        .map(ts => new Date(ts));
 
-  d3.select('#slider')
-    .append('svg')
-    .attr('width', width) 
-    .attr('height', 100)
-    .append('g')
-    .attr('transform', 'translate(30,30)')
-    .call(slider);
+    if (uniqueDates.length === 0) {
+        console.error("No valid dates found.");
+        return;
+    }
+
+    targetDate = new Date(uniqueDates[0]);
+
+    slider = d3.sliderBottom()
+        .min(uniqueDates[0])
+        .max(uniqueDates[uniqueDates.length - 1])
+        .step(1000 * 60 * 60 * 24)
+        .width(width - 60)
+        .displayFormat(d3.timeFormat("%Y-%m-%d"))
+        .displayValue(true)
+        .default(targetDate)
+        .on('onchange', val => {
+            targetDate = new Date(val);
+            updateVis();
+            updateLineChartVis();
+        });
+
+    d3.select('#slider')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', 100)
+        .append('g')
+        .attr('transform', 'translate(30,30)')
+        .call(slider);
 }
 
 function setupMap(){
@@ -200,7 +215,7 @@ function setupMap(){
                 .style("display", 'block') // Make the tooltip visible
                 .html( // Change the html content of the <div> directly
                 `<strong>${d.properties.name}</strong><br/>
-                ${metricLabels[selectedMetric]}: ${d.metricValue.toFixed(1)}`
+                ${metricLabels[selectedMetric]}: ${d.metricValue !== undefined ? d.metricValue.toFixed(1) : "No data"}`
                 )
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY + 10) + "px");
@@ -254,23 +269,26 @@ function updateVis(){
 
 
      // only use values that are actually on the map right now
-    const valuesOnMap = Array.from(dataByState.values()).filter(v => v !== undefined && !isNaN(v));
-    const minVal = d3.min(valuesOnMap);
-    const maxVal = d3.max(valuesOnMap);
-
-    // build the color scale from the displayed values
-    if (
-        selectedMetric === "avg_temp" ||
-        selectedMetric === "min_temp" ||
-        selectedMetric === "max_temp"
-    ) {
-        colorScale = d3.scaleSequential(d3.interpolateRdYlBu)
-            .domain([maxVal, minVal]); // reversed so hot = red, cold = blue
-    } else {
-        colorScale = d3.scaleSequential(d3.interpolateBlues)
-            .domain([minVal, maxVal]);
-    }
-
+    if (selectedMetric === "avg_temp") {
+    colorScale = d3.scaleSequential(d3.interpolateRdYlBu)
+        .domain([100, 0]);
+}
+else if (selectedMetric === "min_temp") {
+    colorScale = d3.scaleSequential(d3.interpolateRdYlBu)
+        .domain([80, -20]);
+}
+else if (selectedMetric === "max_temp") {
+    colorScale = d3.scaleSequential(d3.interpolateRdYlBu)
+        .domain([110, 20]);
+}
+else if (selectedMetric === "avg_wind") {
+    colorScale = d3.scaleSequential(d3.interpolateBlues)
+        .domain([0, 20]);
+}
+else if (selectedMetric === "fast5_wind_speed") {
+    colorScale = d3.scaleSequential(d3.interpolateBlues)
+        .domain([0, 40]);
+}
     statePaths
         .each(function(d) {
             const metricValue = dataByState.get(d.properties.name);
@@ -518,4 +536,35 @@ function updateAnnotations() {
 
     d3.select("#annotationBox").text(text);
 }
+
+function setupPlayButton() {
+    d3.select("#playButton").on("click", function() {
+        if (!isPlaying) {
+            isPlaying = true;
+            d3.select(this).text("Pause");
+
+            playInterval = setInterval(() => {
+                const currentTime = targetDate.getTime();
+                let currentIndex = uniqueDates.findIndex(d => d.getTime() === currentTime);
+
+                if (currentIndex === -1 || currentIndex >= uniqueDates.length - 1) {
+                    currentIndex = 0;
+                } else {
+                    currentIndex += 1;
+                }
+
+                targetDate = new Date(uniqueDates[currentIndex].getTime());
+                slider.value(targetDate);
+                updateVis();
+                updateLineChartVis();
+            }, 500);
+
+        } else {
+            isPlaying = false;
+            d3.select(this).text("Play");
+            clearInterval(playInterval);
+        }
+    });
+}
+
 window.addEventListener('load', init);
