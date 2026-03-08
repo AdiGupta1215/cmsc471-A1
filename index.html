@@ -62,22 +62,13 @@
         <div>
             <h1>Write-Up</h1>
             <h2>Introduction</h2>
-            <p>We chose to use the weather dataset. <i>TO DO</i></br>
-            <h2>Design decisions</h2>
-                We chose to use a colorpleth map visualization for this dataset with a dynamic date slider because we felt it had the best clarity and informational value as a visualization.
-                We considered to use a graph approach with changing variables like in Lab 4 but felt that it did not capture the geographic information and failed to convey the distances between states.
-                Furthermore, the map is a better way to overcome the gulf of evaluation as it is easier to retrieve data from a certain state by clicking it on a map as opposed to finding its dot in a graph.
-                To make the map, we used the topoJSON library 
-                <a href = "https://github.com/topojson/us-atlas"> us-atlas</a>
-                with inspiration from 
-                <a href="https://billmill.org/making_a_us_map.html">Bill Mill</a>.
-                <br><br>
-                One interaction we added was a dynamic date slider that changes the data showed in real time. Along with transitions, this helps the user evaluate patterns through time efficiently and with clarity. 
-                Another choice we considered was a calendar-like selection of date and time, for much the same reason as the choice to use a map- it is a more common representation of date and time for the user. 
-                However, we decided that overall, the ease of rapidly changing the dates was much easier using the slider and harder with the calendar, so with the overall goal of representing the morphology of the data through time at the cost of less convenient direct lookup for an exact date, we decided the slider was a better option.
-                <br><br>
-                We also included a tooltip upon hovering over a state that provides more information on the data for that state. 
-                
+             <p>
+                We used the Daily Weather in the U.S. dataset, which contains weather measurements collected from stations
+                across the United States in 2017. The dataset includes variables such as minimum, maximum, and average
+                temperature, along with several wind speed measurements. Because the raw dataset contains multiple station
+                observations per state for each day, we aggregated the data by state and date to compute a state-level
+                average for the selected metric. This allowed us to present the data in a way that is easier to compare
+                geographically while still preserving meaningful variation over time.
             </p>
             <br>
             <p>
@@ -143,6 +134,79 @@
 
             <h2>Development Process</h2>
 
+            <p>
+                Our development process involved building the visualization step by step, starting with loading and cleaning 
+                the dataset and then creating the base map of the United States using geographic data. After the map was working, 
+                we added the color encoding for the weather values and implemented the date slider so that the visualization 
+                could update dynamically.
+            </p>
+
+            <p>
+                In total, we spent approximately 10 people-hours developing the project. The most 
+                time-consuming aspects were cleaning and aggregating the dataset, implementing linked 
+                interactions between the map and line chart, and debugging issues related to updating 
+                multiple components simultaneously when the selected date or metric changed.
+            </p>
+
+            <p>
+            <p>
+                Work was divided among team members across several tasks including data preparation, 
+                map implementation, interaction design, line chart development, and write-up preparation. 
+                Aditya completed most of the initial data cleaning and aggregation and implemented the 
+                foundational choropleth map showing average temperatures. Emily implemented the linked 
+                state selection interaction, developed the line chart that displays temporal trends for 
+                the selected state, and added the play button animation for the date slider. All team 
+                members collaborated on writing and refining the project write-up.
+
+            </p>
+            <h2>Extra Credit Features</h2>
+
+                <p>
+                    Our project includes several features that go beyond the base assignment requirements.
+                    One of these is the <b>animated timeline playback</b> controlled by the play button. 
+                    Instead of manually moving the date slider, users can automatically animate the data 
+                    over time. This makes it easier to observe how weather patterns evolve across the 
+                    United States and helps reveal temporal trends that may not be immediately visible 
+                    when viewing a single date.
+                </p>
+
+                <p>
+                    We also implemented a <b>linked multi-view visualization</b> between the choropleth map 
+                    and the line chart. When a user clicks on a state in the map, the line chart updates to 
+                    display the full time series for that state. This interaction allows users to move 
+                    seamlessly between spatial exploration (comparing states on the map) and temporal 
+                    analysis (examining trends for a specific location).
+                </p>
+
+                <p>
+                    Another additional feature is the <b>dynamic annotation box</b>, which updates based on 
+                    the currently selected metric. The annotations provide contextual explanations about 
+                    patterns visible in the visualization, helping guide users toward meaningful insights 
+                    while they explore the data.
+                </p>
+
+                <p>
+                    Finally, we implemented <b>interactive zooming and panning</b> within the line chart. 
+                    This allows users to focus on smaller time intervals and explore detailed changes in 
+                    weather patterns for a selected state. Combined with the linked map interaction, this 
+                    supports both overview exploration and detailed analysis within the same interface.
+                </p>
+            <h2>References</h2>
+
+            <p>
+            Weather data: NOAA Global Historical Climatology Network Daily dataset.
+            </p>
+
+            <p>
+            Map data: U.S. Atlas TopoJSON  
+            https://github.com/topojson/us-atlas
+            </p>
+
+            <p>
+            Libraries used:  
+            D3.js – https://d3js.org  
+            D3 Simple Slider – https://github.com/johnwalley/d3-simple-slider
+            </p>
         </div>
     </div>
     
