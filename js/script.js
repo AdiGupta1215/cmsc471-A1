@@ -391,7 +391,9 @@ function updateLineChartVis() {
             d => +d.date
         ),
         ([date, value]) => ({ date: new Date(+date), value: value })
-    ).sort((a, b) => a.date - b.date);
+    )
+    .filter(d => d.value !== undefined && !isNaN(d.value))
+    .sort((a, b) => a.date - b.date);
 
     lineXScale = d3.scaleTime()
         .domain(d3.extent(lineData, d => d.date))
