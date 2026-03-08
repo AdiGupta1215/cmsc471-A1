@@ -175,6 +175,12 @@
                     patterns visible in the visualization, helping guide users toward meaningful insights 
                     while they explore the data.
                 </p>
+                
+                <p>
+                    To make the metric selector look more presentable, we used jQuery Nice Select. It cleans
+                    up the formatting of the button and dropdown and adds smooth transitions. The selector
+                    allows the user to decide which metric they want to view.
+                </p>
 
                 <p>
                     Finally, we implemented <b>interactive zooming and panning</b> within the line chart. 
@@ -201,6 +207,7 @@
 
             <p>
             Libraries used:  <br>
+            <a href="https://jqueryniceselect.hernansartorio.com/">jQuery Nice Select</a><br>
             <a href="https://d3js.org  ">D3.js</a><br>
             <a href="https://github.com/johnwalley/d3-simple-slider">D3 Simple Slider</a>
             <br>
@@ -215,6 +222,10 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://unpkg.com/topojson-client@3"></script>
     <script src="https://unpkg.com/d3-simple-slider"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-nice-select@1.1.0/css/nice-select.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-nice-select@1.1.0/js/jquery.nice-select.min.js"></script>
 
     <script src="js/script.js"></script>
 </body>

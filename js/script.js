@@ -2,7 +2,6 @@ const margin = { top: 80, right: 60, bottom: 60, left: 100 };
 const width = 800 - margin.left - margin.right;
 const height = 500 - margin.top - margin.bottom;
 
-
 const t = 50; // 1000ms = 1 second
 
 // The margin code above
@@ -89,6 +88,13 @@ const svg = d3.select('#vis')
 let isPlaying = false;
 let playInterval = null;
 let uniqueDates = [];
+/**
+ * Parse a string value into a number.
+ * If the string is empty, return undefined.
+ * Otherwise, return the parsed number.
+ * @param {string} value - The string to parse.
+ * @returns {number|undefined} The parsed number, or undefined.
+ */
 function parseNum(value) {
     return value === "" ? undefined : +value;
 }    
@@ -128,6 +134,7 @@ function init(){
         })
 
     .catch(error => console.error('Error loading data:', error));
+
 }
 
 
@@ -149,6 +156,12 @@ function setupMetricSelector() {
             updateVis();
             updateLineChartVis();
         });
+    
+
+    // init jQuery nice select
+    $(document).ready(function() {
+        $('#metricSelector').niceSelect();
+    });
 }
 
 function setupSelector(){
@@ -166,14 +179,16 @@ function setupSelector(){
         return;
     }
 
-    targetDate = new Date(uniqueDates[0]);
+    // targetDate = new Date(uniqueDates[0]);
+    targetDate = new Date(uniqueDates[150]);
 
     slider = d3.sliderBottom()
         .min(uniqueDates[0])
         .max(uniqueDates[uniqueDates.length - 1])
         .step(1000 * 60 * 60 * 24)
         .width(width - 60)
-        .displayFormat(d3.timeFormat("%Y-%m-%d"))
+        .tickFormat(d3.timeFormat("%B"))
+        .displayFormat(d3.timeFormat("%B"))
         .displayValue(true)
         .default(targetDate)
         .on('onchange', val => {
@@ -333,12 +348,28 @@ function setupLineChart() {
         .append("rect")
         .attr("width", lineWidth)
         .attr("height", lineHeight);
+
     lineSvg.append("text")
         .attr("class", "lineTitle")
         .attr("x", lineWidth / 2)
         .attr("y", -10)
         .attr("text-anchor", "middle")
         .text("Click a state to see its trend over time");
+
+    lineSvg.append("text")
+        .attr("class", "xAxisLabel")
+        .attr("text-anchor", "middle")
+        .attr("x", lineWidth / 2)
+        .attr("y", lineHeight + 40)
+        .text("");
+
+    lineSvg.append("text")
+        .attr("class", "yAxisLabel")
+        .attr("text-anchor", "middle")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -lineHeight / 2)
+        .attr("y", -45)
+        .text("");
 
     lineXAxis = lineSvg.append("g")
         .attr("class", "xAxis")
@@ -415,6 +446,11 @@ function updateLineChartVis() {
         .datum(lineData)
         .attr("d", line);
 
+    lineSvg.select(".lineTitle")
+        .text(`${selectedState} ${metricLabels[selectedMetric]} Over Time`);
+
+    lineSvg.select(".yAxisLabel")
+        .text(metricLabels[selectedMetric]);
     lineSvg.select(".lineTitle")
         .text(`${selectedState} ${metricLabels[selectedMetric]} Over Time`);
 
