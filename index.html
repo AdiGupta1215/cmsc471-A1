@@ -53,9 +53,6 @@
         </div>
         <div id="vis"></div>
             <div id="annotationBox" class="annotation-box"></div>
-
-            
-          
             <div id="lineVis"></div>
 
             
@@ -65,17 +62,11 @@
              <p>
                 We used the Daily Weather in the U.S. dataset, which contains weather measurements collected from stations
                 across the United States in 2017. The dataset includes variables such as minimum, maximum, and average
-                temperature, along with several wind speed measurements. Because the raw dataset contains multiple station
+                temperature, along with average wind speed, and fastest 5-second wind speed. Because the raw dataset contains multiple station
                 observations per state for each day, we aggregated the data by state and date to compute a state-level
                 average for the selected metric. This allowed us to present the data in a way that is easier to compare
                 geographically while still preserving meaningful variation over time.
             </p>
-            <br>
-            <p>
-                In our visualization, users can explore several weather variables, including average temperature, minimum
-                temperature, maximum temperature, average wind speed, and fastest 5-second wind speed. This subset of
-                variables allows users to compare both temperature and wind conditions across states and observe how these
-                patterns change throughout the year.
             </p>
             <h2>Design decisions</h2>
             <p>
@@ -153,9 +144,9 @@
                 Work was divided among team members across several tasks including data preparation, 
                 map implementation, interaction design, line chart development, and write-up preparation. 
                 Aditya completed most of the initial data cleaning and aggregation and implemented the 
-                foundational choropleth map showing average temperatures. Emily implemented the linked 
-                state selection interaction, developed the line chart that displays temporal trends for 
-                the selected state, and added the play button animation for the date slider. All team 
+                foundational choropleth map showing average temperatures as well as the initial dynamic date slider. 
+                Emily implemented the linked  state selection interaction, developed the line chart that displays temporal trends 
+                for the selected state, and added the play button animation for the date slider. All team 
                 members collaborated on writing and refining the project write-up.
 
             </p>
@@ -191,6 +182,8 @@
                     weather patterns for a selected state. Combined with the linked map interaction, this 
                     supports both overview exploration and detailed analysis within the same interface.
                 </p>
+
+
             <h2>References</h2>
 
             <p>
@@ -199,6 +192,7 @@
 
             <p>
             Map data: U.S. Atlas TopoJSON  
+            
             https://github.com/topojson/us-atlas
             </p>
 
@@ -207,6 +201,8 @@
             D3.js – https://d3js.org  
             D3 Simple Slider – https://github.com/johnwalley/d3-simple-slider
             </p>
+
+            <p>ChatGPT was used for deciphering code and bugfixes for parts of this project</p>
         </div>
     </div>
     
