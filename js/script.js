@@ -347,6 +347,7 @@ function setupLineChart() {
         .attr("id", "line-clip")
         .append("rect")
         .attr("width", lineWidth)
+        // .tickFormat(d3.timeFormat("%B"))
         .attr("height", lineHeight);
 
     lineSvg.append("text")
