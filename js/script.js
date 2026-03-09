@@ -479,7 +479,12 @@ function updateLineChartVis() {
             .x(d => newX(d.date))
             .y(d => lineYScale(d.value));
 
-        lineXAxis.call(d3.axisBottom(newX).ticks(6).tickFormat(d3.timeFormat("%b")));
+        lineXAxis.call(d3.axisBottom(newX).ticks(6)
+        .tickFormat(d => {
+            if (d.getDate() === 1) return d3.timeFormat("%b")(d);
+            return d3.timeFormat("%b %e")(d);
+        }));
+
         linePath.attr("d", newLine(lineData));
 
         if (currentPoint) {
