@@ -123,7 +123,7 @@ function init(){
         }))
 
     .then(data => {
-            console.log(data)
+            //console.log(data)
             allData = data.filter(d => d.state !== undefined && d.date instanceof Date && !isNaN(d.date));
 
             setupMetricSelector();
@@ -280,7 +280,7 @@ function updateVis(){
         v => d3.mean(v, d => d[selectedMetric]), // average temperature
         d => d.state
     );
-    console.log(filteredData.filter(d=>d.state== "New York"))
+    //console.log(filteredData.filter(d=>d.state== "New York"))
 
 
      // only use values that are actually on the map right now
@@ -588,14 +588,17 @@ function setupPlayButton() {
             d3.select(this).text("Pause");
 
             playInterval = setInterval(() => {
+                console.log(uniqueDates.length)
                 const currentTime = targetDate.getTime();
-                let currentIndex = uniqueDates.findIndex(d => d.getTime() === currentTime);
+                let currentIndex = uniqueDates.findIndex(d => d >= currentTime );
 
                 if (currentIndex === -1 || currentIndex >= uniqueDates.length - 1) {
                     currentIndex = 0;
                 } else {
                     currentIndex += 1;
                 }
+
+                //console.log(`current index: ${currentIndex}`)
 
                 targetDate = new Date(uniqueDates[currentIndex].getTime());
                 slider.value(targetDate);
