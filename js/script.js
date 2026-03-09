@@ -347,7 +347,6 @@ function setupLineChart() {
         .attr("id", "line-clip")
         .append("rect")
         .attr("width", lineWidth)
-        // .tickFormat(d3.timeFormat("%B"))
         .attr("height", lineHeight);
 
     lineSvg.append("text")
@@ -591,7 +590,8 @@ function setupPlayButton() {
             playInterval = setInterval(() => {
                 console.log(uniqueDates.length)
                 const currentTime = targetDate.getTime();
-                let currentIndex = uniqueDates.findIndex(d => d >= currentTime );
+                let currentIndex = uniqueDates.findIndex(d => d >= currentTime);
+
 
                 if (currentIndex === -1 || currentIndex >= uniqueDates.length - 1) {
                     currentIndex = 0;
