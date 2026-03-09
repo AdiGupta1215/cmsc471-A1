@@ -188,7 +188,7 @@ function setupSelector(){
         .step(1000 * 60 * 60 * 24)
         .width(width - 60)
         .tickFormat(d3.timeFormat("%B"))
-        .displayFormat(d3.timeFormat("%B %e, %Y"))
+        .displayFormat(d3.timeFormat("%b %e, %Y"))
         .displayValue(true)
         .default(targetDate)
         .on('onchange', val => {
