@@ -141,26 +141,23 @@ function init(){
 
 
 function setupMetricSelector() {
-    d3.select('#metricSelector')
-        .selectAll('option')
+    const selector = d3.select('#metricSelector');
+
+    selector.selectAll('option')
         .data(Object.keys(metricLabels))
         .enter()
         .append('option')
         .attr('value', d => d)
         .text(d => metricLabels[d]);
 
-    d3.select('#metricSelector')
-        .property('value', selectedMetric)
-        .on('change', function() {
-            selectedMetric = d3.select(this).property('value');
+    selector.property('value', selectedMetric);
+    $(document).ready(function() {
+        $('#metricSelector').niceSelect();
+        $('#metricSelector').on('change', function() {
+            selectedMetric = $(this).val();
             updateVis();
             updateLineChartVis();
         });
-    
-
-    // init jQuery nice select
-    $(document).ready(function() {
-        $('#metricSelector').niceSelect();
     });
 }
 
@@ -590,7 +587,7 @@ function setupPlayButton() {
             playInterval = setInterval(() => {
                 console.log(uniqueDates.length)
                 const currentTime = targetDate.getTime();
-                let currentIndex = uniqueDates.findIndex(d => d >= currentTime);
+                let currentIndex = uniqueDates.findIndex(d => d >= curr);
 
 
                 if (currentIndex === -1 || currentIndex >= uniqueDates.length - 1) {
