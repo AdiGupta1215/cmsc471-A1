@@ -584,13 +584,11 @@ function setupPlayButton() {
             isPlaying = true;
             d3.select(this).text("Pause");
 
+            const currentTime = targetDate.getTime();
+            let currentIndex = uniqueDates.findIndex(d => d >= currentTime);
+
             playInterval = setInterval(() => {
-                console.log(uniqueDates.length)
-                const currentTime = targetDate.getTime();
-                let currentIndex = uniqueDates.findIndex(d => d >= currentTime);
-
-
-                if (currentIndex === -1 || currentIndex >= uniqueDates.length - 1) {
+                if(currentIndex >= uniqueDates.length - 1) {
                     currentIndex = 0;
                 } else {
                     currentIndex += 1;
