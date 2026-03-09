@@ -373,7 +373,8 @@ function setupLineChart() {
 
     lineXAxis = lineSvg.append("g")
         .attr("class", "xAxis")
-        .attr("transform", `translate(0,${lineHeight})`);
+        .attr("transform", `translate(0,${lineHeight})`)
+        
 
     lineYAxis = lineSvg.append("g")
         .attr("class", "yAxis");
@@ -439,7 +440,7 @@ function updateLineChartVis() {
         .x(d => lineXScale(d.date))
         .y(d => lineYScale(d.value));
 
-    lineXAxis.call(d3.axisBottom(lineXScale).ticks(6));
+    lineXAxis.call(d3.axisBottom(lineXScale).ticks(6).tickFormat(d3.timeFormat("%b")));
     lineYAxis.call(d3.axisLeft(lineYScale));
 
     linePath
@@ -478,7 +479,7 @@ function updateLineChartVis() {
             .x(d => newX(d.date))
             .y(d => lineYScale(d.value));
 
-        lineXAxis.call(d3.axisBottom(newX).ticks(6));
+        lineXAxis.call(d3.axisBottom(newX).ticks(6).tickFormat(d3.timeFormat("%b")));
         linePath.attr("d", newLine(lineData));
 
         if (currentPoint) {
