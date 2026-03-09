@@ -587,7 +587,7 @@ function setupPlayButton() {
             playInterval = setInterval(() => {
                 console.log(uniqueDates.length)
                 const currentTime = targetDate.getTime();
-                let currentIndex = uniqueDates.findIndex(d => d >= curr);
+                let currentIndex = uniqueDates.findIndex(d => d >= currentTime);
 
 
                 if (currentIndex === -1 || currentIndex >= uniqueDates.length - 1) {
